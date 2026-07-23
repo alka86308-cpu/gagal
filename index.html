@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Rayon Wonorejo DEV</title>
+
+<style>
+
+  *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI}
+
+  body{background:#f5f5f5}
+
+  .login-container{display:flex;justify-content:center;align-items:center;height:100vh}
+
+  .login-box{background:#fff;padding:30px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);width:90%;max-width:400px}
+
+  .login-box h2{text-align:center;margin-bottom:20px;color:#2c3e50}
+
+  .login-box input{width:100%;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:5px}
+
+  .login-box button{width:100%;padding:12px;background:#27ae60;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:bold}
+
+  .login-box button:hover{background:#219150}
+
+  .container{display:none;padding:20px}
+
+  .header{background:#27ae60;color:#fff;padding:15px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+
+  .menu button{padding:10px 15px;margin:5px;background:#3498db;color:#fff;border:none;border-radius:5px;cursor:pointer}
+
+  .menu button.active{background:#2980b9}
+
+  .card{background:#fff;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+
+  .card h3{margin-bottom:15px;color:#2c3e50}
+
+  .form-group{margin-bottom:15px}
+
+  .form-group label{display:block;margin-bottom:5px;font-weight:bold}
+
+  .form-group input, .form-group select{width:100%;padding:10px;border:1px solid #ddd;border-radius:5px}
+
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+
+  table th, table td{border:1px solid #ddd;padding:10px;text-align:left}
+
+  table th{background:#27ae60;color:#fff}
+
+  .btn{padding:8px 12px;border:none;border-radius:5px;cursor:pointer;margin:2px}
+
+  .btn-add{background:#27ae60;color:#fff}
+
+  .btn-edit{background:#f39c12;color:#fff}
+
+  .btn-del{background:#e74c3c;color:#fff}
+
+  .btn-export{background:#8e44ad;color:#fff}
+
+  #namaGroup{display:block}
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<div class="login-container" id="loginPage">
+
+  <div class="login-box">
+
+    <h2>Login Rayon Wonorejo DEV</h2>
+
+    <input type="text" id="username" placeholder="Username">
+
+    <input type="password" id="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <p id="loginError" style="color:red;text-align:center;margin-top:10px"></p>
+
+  </div>
+
+</div>
+
+
+
+<div class="container" id="mainPage">
+
+  <div class="header">
+
+    <h2>Dashboard Rayon Wonorejo DEV</h2>
+
+    <button onclick="logout()" style="background:#e74c3c">Logout</button>
+
+  </div>
+
+
+
+  <div class="menu" id="menu">
+
+    <button onclick="showMenu('keuangan')" id="btnKeuangan">Keuangan</button>
+
+    <button onclick="showMenu('siswa')" id="btnSiswa">Data Siswa</button>
+
+  </div>
+
+
+
+  <div id="keuangan" class="card" style="display:none">
+
+    <h3>Data Keuangan</h3>
+
+    <div class="form-group">
+
+      <label>Tanggal</label>
+
+      <input type="date" id="tgl">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Keterangan</label>
+
+      <select id="ket" onchange="toggleNama()">
+
+        <option value="Kas Warga">Kas Warga</option>
+
+        <option value="Kas Siswa">Kas Siswa</option>
+
+        <option value="Kegiatan">Kegiatan</option>
+
+        <option value="Lain-lain">Lain-lain</option>
+
+      </select>
+
+    </div>
+
+    <div class="form-group" id="namaGroup">
+
+      <label>Nama</label>
+
+      <input type="text" id="nama">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Jumlah</label>
+
+      <input type="number" id="jumlah">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Tipe</label>
+
+      <select id="tipe">
+
+        <option value="Masuk">Masuk</option>
+
+        <option value="Keluar">Keluar</option>
+
+      </select>
+
+    </div>
+
+    <button class="btn btn-add" onclick="addKeuangan()">Tambah Data</button>
+
+    <button class="btn btn-export" onclick="exportExcel()">Export Excel</button>
+
+    <table id="tabelKeuangan"></table>
+
+  </div>
+
+
+
+  <div id="siswa" class="card" style="display:none">
+
+    <h3>Data Siswa</h3>
+
+    <div class="form-group">
+
+      <label>Nama</label>
+
+      <input type="text" id="sNama">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Rayon</label>
+
+      <input type="text" id="sRayon" value="Wonorejo">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>NIK</label>
+
+      <input type="text" id="sNik">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>HP</label>
+
+      <input type="text" id="sHp">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Alamat</label>
+
+      <input type="text" id="sAlamat">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Agama</label>
+
+      <input type="text" id="sAgama">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Tingkatan</label>
+
+      <input type="text" id="sTingkat">
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Leting</label>
+
+      <input type="text" id="sLeting">
+
+    </div>
+
+    <button class="btn btn-add" onclick="addSiswa()">Tambah Siswa</button>
+
+    <table id="tabelSiswa"></table>
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+const API_URL = 'https://script.google.com/macros/s/AKfycbztRSKahqcF6nKMayv1Wer7zE3Jo_RJBC670XfEHoISz4ZqwyXoDAXiKOH1K_wAauY4/exec';
+
+let role = '';
+
+
+
+function login(){
+
+  const u = document.getElementById('username').value;
+
+  const p = document.getElementById('password').value;
+
+  fetch(API_URL + '?action=login&username='+u+'&password='+p)
+
+  .then(res=>res.json())
+
+  .then(data=>{
+
+    if(data.status=='success'){
+
+      role = data.role;
+
+      document.getElementById('loginPage').style.display='none';
+
+      document.getElementById('mainPage').style.display='block';
+
+      setRole();
+
+      showMenu('keuangan');
+
+    } else {
+
+      document.getElementById('loginError').innerText = data.message;
+
+    }
+
+  })
+
+}
+
+
+
+function logout(){
+
+  document.getElementById('loginPage').style.display='flex';
+
+  document.getElementById('mainPage').style.display='none';
+
+}
+
+
+
+function setRole(){
+
+  if(role=='bendahara'){
+
+    document.getElementById('btnSiswa').style.display='none';
+
+  }
+
+  if(role=='sekretaris'){
+
+    document.getElementById('btnKeuangan').style.display='none';
+
+  }
+
+}
+
+
+
+function showMenu(menu){
+
+  document.getElementById('keuangan').style.display='none';
+
+  document.getElementById('siswa').style.display='none';
+
+  document.getElementById(menu).style.display='block';
+
+  if(menu=='keuangan') loadKeuangan();
+
+  if(menu=='siswa') loadSiswa();
+
+}
+
+
+
+function toggleNama(){
+
+  const ket = document.getElementById('ket').value;
+
+  document.getElementById('namaGroup').style.display = (ket=='Kegiatan'||ket=='Lain-lain')?'none':'block';
+
+}
+
+
+
+function addKeuangan(){
+
+  const data = `action=addKeuangan&tanggal=${tgl.value}&keterangan=${ket.value}&nama=${nama.value}&jumlah=${jumlah.value}&tipe=${tipe.value}`;
+
+  fetch(API_URL, {method:'POST', body:data})
+
+  .then(res=>res.json()).then(()=>{alert('Berhasil'); loadKeuangan();})
+
+}
+
+
+
+function loadKeuangan(){
+
+  fetch(API_URL + '?action=getKeuangan')
+
+  .then(res=>res.json())
+
+  .then(data=>{
+
+    let html = '<tr><th>Tanggal</th><th>Keterangan</th><th>Nama</th><th>Jumlah</th><th>Tipe</th></tr>';
+
+    data.data.slice(1).forEach(row=>{
+
+      html += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td></tr>`;
+
+    });
+
+    document.getElementById('tabelKeuangan').innerHTML = html;
+
+  })
+
+}
+
+
+
+function addSiswa(){
+
+  const data = `action=addSiswa&nama=${sNama.value}&rayon=${sRayon.value}&nik=${sNik.value}&hp=${sHp.value}&alamat=${sAlamat.value}&agama=${sAgama.value}&tingkatan=${sTingkat.value}&leting=${sLeting.value}`;
+
+  fetch(API_URL, {method:'POST', body:data})
+
+  .then(res=>res.json()).then(()=>{alert('Berhasil'); loadSiswa();})
+
+}
+
+
+
+function loadSiswa(){
+
+  fetch(API_URL + '?action=getSiswa')
+
+  .then(res=>res.json())
+
+  .then(data=>{
+
+    let html = '<tr><th>Nama</th><th>Rayon</th><th>NIK</th><th>HP</th><th>Alamat</th><th>Agama</th><th>Tingkatan</th><th>Leting</th></tr>';
+
+    data.data.slice(1).forEach(row=>{
+
+      html += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td><td>${row[6]}</td><td>${row[7]}</td></tr>`;
+
+    });
+
+    document.getElementById('tabelSiswa').innerHTML = html;
+
+  })
+
+}
+
+
+
+function exportExcel(){
+
+  alert('Fitur export bisa ditambah pake library XLSX')
+
+}
+
+</script>
+
+
+
+</body>
+
+</html>
