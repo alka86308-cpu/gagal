@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rayon Wonorejo</title>
+<style>
+body{font-family:'Segoe UI',Arial;background:#10b981;margin:0;padding:15px}
+.card{background:white;padding:20px;border-radius:12px;margin-bottom:15px;box-shadow:0 4px 10px rgba(0,0,0,0.1)}
+input,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+.btn{width:100%;padding:12px;border:none;border-radius:8px;font-weight:bold;color:white;cursor:pointer;margin-top:8px}
+.btn-green{background:#10b981}.btn-red{background:#ef4444}.btn-blue{background:#3b82f6}.btn-purple{background:#8b5cf6}.btn-yellow{background:#f59e0b;color:black}
+.btn-hapus{background:red;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer}.btn-edit{background:#f59e0b;color:black;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:4px}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.menu-btn{padding:15px;border:none;border-radius:12px;color:white;font-weight:bold;cursor:pointer;font-size:14px}
+.hidden{display:none}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
+th{background:#10b981;color:white;padding:10px}td{border:1px solid #eee;padding:8px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;text-align:center}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+.header img{width:50px;height:50px;border-radius:8px}
+.filter-bar{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.filter-bar select,.filter-bar button{flex:1;min-width:120px}
+.total-box{padding:10px;background:#f0fdf4;border-radius:8px}
+#exportArea{position:absolute;left:-9999px;top:-9999px;background:white;padding:20px;width:1200px}
+.status-lunas{color:green;font-weight:bold}.status-belum{color:red;font-weight:bold}
+.logo-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.logo-header img{width:40px;height:40px}
+.loading{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;z-index:9999}
+.foto-prawarga{width:60px;height:80px;object-fit:cover;border:1px solid #ccc}
+</style>
+</head>
+<body>
+<div id="loading" class="loading hidden">Loading...</div>
+
+<div id="loginPage" class="card" style="max-width:400px;margin:50px auto;text-align:center">
+<img src="logo.png" style="width:80px;margin-bottom:10px" onerror="this.style.display='none'">
+<h1 style="color:#10b981">Rayon Wonorejo</h1>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()" class="btn btn-green">Login</button>
+<p id="err" style="color:red"></p>
+</div>
+
+<div id="app" class="hidden">
+<div class="card">
+<div class="header">
+<img src="logo.png" onerror="this.style.display='none'">
+<div><h1 style="color:#10b981;margin:0">Dashboard</h1><p style="margin:0">Halo <b id="nama"></b> - <span id="role"></span></p></div>
+<button onclick="logout()" class="btn btn-red" style="width:100px;margin-left:auto">Logout</button>
+</div>
+</div>
+<div class="menu" id="menu"></div>
+
+<div id="dashboard" class="card"><h2>Statistik</h2>
+<div class="grid-2">
+<div class="total-box"><b>Total Siswa</b><h2 id="tS">0</h2></div>
+<div class="total-box"><b>Pemasukan</b><h2 id="masuk" style="color:green">Rp 0</h2></div>
+<div class="total-box"><b>Pengeluaran</b><h2 id="keluar" style="color:red">Rp 0</h2></div>
+<div class="total-box"><b>Saldo</b><h2 id="saldo">Rp 0</h2></div>
+<div class="total-box"><b>Kas Siswa</b><h2 id="kS" style="color:#3b82f6">Rp 0</h2></div>
+<div class="total-box"><b>Kas Warga</b><h2 id="kW" style="color:#8b5cf6">Rp 0</h2></div>
+</div></div>
+
+<div id="keuangan" class="card hidden"><h2 id="judulK">Input Keuangan</h2>
+<div id="formK">
+<input id="tgl" type="date"><select id="kat" onchange="toggle()"><option>Kas Siswa</option><option>Kas Warga</option><option>Lainnya</option><option>Iuran Siswa</option><option>Iuran Warga</option></select>
+<select id="nS"></select><select id="nW" class="hidden"></select>
+<input id="ket" placeholder="Keterangan"><input id="jum" type="number" placeholder="Jumlah">
+<select id="tipe"><option>Masuk</option><option>Keluar</option></select>
+<button onclick="saveK()" id="btnSimpanK" class="btn btn-green">Simpan</button>
+<button onclick="updateK()" id="btnUpdateK" class="btn btn-yellow hidden">Update</button>
+<button onclick="cancelEditK()" id="btnCancelK" class="btn btn-red hidden">Batal</button>
+</div>
+<h3 style="margin-top:20px">Data Keuangan</h3>
+<div class="filter-bar">
+<select id="filterBulan" onchange="load()"><option value="">Semua Bulan</option></select>
+<select id="filterKategori" onchange="load()"><option value="">Semua Kategori</option><option>Kas Siswa</option><option>Kas Warga</option><option>Lainnya</option><option>Iuran Siswa</option><option>Iuran Warga</option></select>
+<select id="filterTipe" onchange="load()"><option value="">Semua Tipe</option><option>Masuk</option><option>Keluar</option></select>
+<button onclick="exportPDF('keuangan')" class="btn btn-blue">Export PDF</button>
+<button onclick="exportFoto('keuangan')" class="btn btn-purple">Export Foto</button>
+</div>
+<div id="tabK" style="overflow-x:auto"></div>
+</div>
+
+<div id="siswa" class="card hidden"><h2 id="judulS">Data Siswa</h2>
+<div id="formS">
+<input id="nikS" placeholder="NIK" inputmode="numeric"><input id="n" placeholder="Nama">
+<select id="jk"><option value="">JK</option><option>L</option><option>P</option></select>
+<input id="ttl" placeholder="Tempat, Tanggal Lahir"><select id="agama"><option value="">Pilih Agama</option><option>Islam</option><option>Kristen</option><option>Katolik</option><option>Hindu</option><option>Buddha</option><option>Konghucu</option></select>
+<input id="al" placeholder="Alamat"><input id="hp" type="text" placeholder="No HP" inputmode="numeric">
+<select id="ting"><option value="">Pilih Tingkatan</option><option>Polos</option><option>Jambon</option><option>Ijo</option><option>Putih</option></select>
+<button onclick="saveS()" id="btnSimpanS" class="btn btn-green">Simpan</button>
+<button onclick="updateS()" id="btnUpdateS" class="btn btn-yellow hidden">Update</button>
+<button onclick="cancelEditS()" id="btnCancelS" class="btn btn-red hidden">Batal</button>
+</div>
+<h3 style="margin-top:20px">Daftar Siswa</h3>
+<div class="filter-bar">
+<select id="filterTing" onchange="load()"><option value="">Semua Tingkatan</option></select>
+<button onclick="exportPDF('siswa')" class="btn btn-blue">Export PDF</button>
+<button onclick="exportExcel('siswa')" class="btn btn-green">Export Excel</button>
+</div>
+<div id="tabS" style="overflow-x:auto"></div>
+</div>
+
+<div id="warga" class="card hidden"><h2 id="judulW">Data Warga</h2>
+<div id="formW">
+<input id="nWg" placeholder="Nama Warga"><input id="thn" placeholder="Tahun"><input id="alWg" placeholder="Alamat">
+<button onclick="saveW()" id="btnSimpanW" class="btn btn-green">Simpan</button>
+<button onclick="updateW()" id="btnUpdateW" class="btn btn-yellow hidden">Update</button>
+<button onclick="cancelEditW()" id="btnCancelW" class="btn btn-red hidden">Batal</button>
+</div>
+<h3 style="margin-top:20px">Daftar Warga</h3>
+<div class="filter-bar"><button onclick="exportPDF('warga')" class="btn btn-blue">Export PDF</button><button onclick="exportExcel('warga')" class="btn btn-green">Export Excel</button></div>
+<div id="tabW" style="overflow-x:auto"></div>
+</div>
+
+<div id="prawarga" class="card hidden"><h2 id="judulP">Data Calon Warga / Prawarga</h2>
+<div id="formP">
+<select id="selectSiswaPutih" onchange="autoFillP()"><option value="">Pilih dari Siswa Putih</option></select>
+<button onclick="generatePrawarga()" class="btn btn-purple">Generate Data</button>
+<hr>
+<input id="nikP" placeholder="NIK"><input id="nP" placeholder="Nama"><select id="jkP"><option value="">JK</option><option>L</option><option>P</option></select>
+<input id="ttlP" placeholder="Tempat, Tanggal Lahir"><select id="agamaP"><option value="">Pilih Agama</option><option>Islam</option><option>Kristen</option><option>Katolik</option><option>Hindu</option><option>Buddha</option><option>Konghucu</option></select>
+<input id="alP" placeholder="Alamat"><input id="rayonP" placeholder="Rayon" value="Wonorejo"><input id="rantingP" placeholder="Ranting" value="Satui">
+<input id="kerjaP" placeholder="Pekerjaan"><input id="tinggiP" placeholder="Tinggi Badan"><input id="beratP" placeholder="Berat Badan">
+<input id="tahunP" placeholder="Tahun Angkatan"><input id="hpP" placeholder="No HP"><input id="fotoP" placeholder="Link Foto Google Drive">
+<button onclick="saveP()" id="btnSimpanP" class="btn btn-green">Simpan</button>
+<button onclick="updateP()" id="btnUpdateP" class="btn btn-yellow hidden">Update</button>
+<button onclick="cancelEditP()" id="btnCancelP" class="btn btn-red hidden">Batal</button>
+</div>
+<h3 style="margin-top:20px">Daftar Prawarga</h3>
+<div class="filter-bar"><button onclick="exportPDF('prawarga')" class="btn btn-blue">Export PDF</button><button onclick="exportFoto('prawarga')" class="btn btn-purple">Export Foto</button></div>
+<div id="tabP" style="overflow-x:auto"></div>
+  </div>
+  <div id="users" class="card hidden"><h2>Manajemen User</h2>
+<input id="u" placeholder="Username"><input id="p" placeholder="Password">
+<input id="namaL" placeholder="Nama Lengkap untuk TTD">
+<select id="r"><option>admin</option><option>bendahara</option><option>sekretaris</option><option>warga</option></select>
+<button onclick="saveU()" class="btn btn-green">Simpan User</button>
+<button onclick="updateU()" id="btnUpdate" class="btn btn-yellow hidden">Update User</button>
+<button onclick="cancelEdit()" id="btnCancel" class="btn btn-red hidden">Batal</button>
+<h3 style="margin-top:20px">Daftar User</h3><div id="tabU" style="overflow-x:auto"></div>
+</div>
+
+<div id="qriuran" class="card hidden"><h2>Generate Iuran Per Bulan</h2>
+<p><b>Bulan:</b> <span id="bulanSekarang"></span> <b>Tahun:</b> <span id="tahunSekarang"></span></p>
+<select id="qrTipe"><option value="">Pilih Tipe</option><option value="Siswa">Semua Siswa</option><option value="Warga">Semua Warga</option></select>
+<input id="qrJumlah" type="number" placeholder="Nominal Manual" value="2000">
+<button onclick="generateQRBulanan()" class="btn btn-purple">Generate Iuran Bulan Ini</button>
+<button onclick="exportRekapPDF()" class="btn btn-blue">Export Rekap Setahun PDF</button>
+<h3 style="margin-top:20px">Data Iuran Bulan <span id="bulanQR"></span> <span id="tahunQR"></span></h3>
+<div class="filter-bar">
+<select id="filterQR" onchange="loadQR()"><option value="">Semua</option><option value="Siswa">Kas Siswa</option><option value="Warga">Kas Warga</option></select>
+<button onclick="exportPDF('qr')" class="btn btn-blue">Export PDF</button>
+<button onclick="exportFoto('qr')" class="btn btn-purple">Export Foto</button>
+</div>
+<div id="tabQR" style="overflow-x:auto"></div>
+</div>
+</div>
+<div id="exportArea"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+const API="https://script.google.com/macros/s/AKfycbzpxtyuymSH2_9Z7SJXwN7d0eX58RbRWuuz-fy-V6wOirR7hsQywFK1TXd8UDQfJoMw/exec";
+const LOGO_URL="logo.png";
+let roleGlobal="",namaGlobal="",namaLengkap="",dataGlobal={},editRow=null,editRowK=null,editRowS=null,editRowW=null,editRowP=null;
+let logoutTimer;
+const bulanNama=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const now=new Date();const bulanIni=bulanNama[now.getMonth()];const tahunIni=now.getFullYear();
+document.getElementById('bulanSekarang').innerText=bulanIni;document.getElementById('tahunSekarang').innerText=tahunIni;document.getElementById('bulanQR').innerText=bulanIni;document.getElementById('tahunQR').innerText=tahunIni;
+
+// AUTO LOGOUT 5 MENIT
+function resetLogoutTimer(){clearTimeout(logoutTimer);logoutTimer=setTimeout(()=>{alert("Sesi habis. Otomatis logout");logout();},300000);}
+['click','mousemove','keypress','scroll'].forEach(evt=>document.addEventListener(evt,resetLogoutTimer));
+
+function showLoading(s){document.getElementById('loading').classList.toggle('hidden',!s);}
+async function post(data){showLoading(true);let res=await fetch(API,{method:'POST',body:new URLSearchParams(data)});let json=await res.json();showLoading(false);resetLogoutTimer();return json;}
+
+async function login(){err.innerText="";let res=await post({action:"login",username:username.value,password:password.value});if(res.status=="success"){roleGlobal=res.role;namaGlobal=res.nama;namaLengkap=res.namaLengkap;loginPage.classList.add('hidden');app.classList.remove('hidden');nama.innerText=res.nama;role.innerText=res.role;setMenu();show('dashboard');load();resetLogoutTimer();}else err.innerText="Login gagal";}
+
+function logout(){app.classList.add('hidden');loginPage.classList.remove('hidden');username.value='';password.value='';clearTimeout(logoutTimer);}
+function show(id){['dashboard','keuangan','siswa','warga','prawarga','users','qriuran'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
+
+function setMenu(){
+  let menuHTML=`<button onclick="show('dashboard')" class="menu-btn" style="background:#f97316">📊 Dashboard</button>`;
+  if(roleGlobal=="admin"||roleGlobal=="bendahara")menuHTML+=`<button onclick="show('keuangan')" class="menu-btn" style="background:#22c55e">💰 Keuangan</button>`;
+  if(roleGlobal=="admin"||roleGlobal=="sekretaris")menuHTML+=`<button onclick="show('siswa')" class="menu-btn" style="background:#3b82f6">🎓 Siswa</button>`;
+  if(roleGlobal=="admin"||roleGlobal=="sekretaris")menuHTML+=`<button onclick="show('warga')" class="menu-btn" style="background:#8b5cf6">👥 Warga</button>`;
+  if(roleGlobal=="admin"||roleGlobal=="sekretaris")menuHTML+=`<button onclick="show('prawarga')" class="menu-btn" style="background:#eab308;color:black">📝 Prawarga</button>`;
+  if(roleGlobal=="admin"||roleGlobal=="bendahara")menuHTML+=`<button onclick="show('qriuran')" class="menu-btn" style="background:#ec4899">📱 QR Iuran</button>`;
+  if(roleGlobal=="admin")menuHTML+=`<button onclick="show('users')" class="menu-btn" style="background:#6366f1">👤 Manajemen User</button>`;
+  menu.innerHTML=menuHTML;
+}
+
+function toggle(){if(kat.value=="Kas Warga"||kat.value=="Iuran Warga"){nS.classList.add('hidden');nW.classList.remove('hidden');}else{nW.classList.add('hidden');nS.classList.remove('hidden');}}
+  async function load(){
+  let d=await post({action:"getData"});dataGlobal=d;
+  tS.innerText=d.totalSiswa;masuk.innerText="Rp "+d.pemasukan.toLocaleString('id-ID');keluar.innerText="Rp "+d.pengeluaran.toLocaleString('id-ID');saldo.innerText="Rp "+d.saldo.toLocaleString('id-ID');kS.innerText="Rp "+d.kasSiswa.toLocaleString('id-ID');kW.innerText="Rp "+d.kasWarga.toLocaleString('id-ID');
+  nS.innerHTML="<option>Pilih Siswa</option>";d.siswa.forEach(x=>nS.innerHTML+=`<option>${x.nama}</option>`);nW.innerHTML="<option>Pilih Warga</option>";d.warga.forEach(x=>nW.innerHTML+=`<option>${x.nama}</option>`);
+  selectSiswaPutih.innerHTML="<option value=''>Pilih dari Siswa Putih</option>"+d.siswa.filter(x=>x.tingkatan=="Putih").map(x=>`<option>${x.nama}</option>`).join("");
+
+  let bisaInputS = roleGlobal=="admin" || roleGlobal=="sekretaris";
+  let bisaEditS = roleGlobal=="admin" || roleGlobal=="sekretaris";
+  let bisaHapusS = roleGlobal=="admin";
+  formS.style.display = bisaInputS? 'block' : 'none';
+
+  let bisaInputW = roleGlobal=="admin" || roleGlobal=="sekretaris";
+  let bisaEditW = roleGlobal=="admin" || roleGlobal=="sekretaris";
+  let bisaHapusW = roleGlobal=="admin";
+  formW.style.display = bisaInputW? 'block' : 'none';
+
+  let bisaInputK = roleGlobal=="admin" || roleGlobal=="bendahara";
+  let bisaEditK = roleGlobal=="admin" || roleGlobal=="bendahara";
+  let bisaHapusK = roleGlobal=="admin";
+  formK.style.display = bisaInputK? 'block' : 'none';
+
+  let bisaInputP = roleGlobal=="admin" || roleGlobal=="sekretaris";
+  let bisaEditP = roleGlobal=="admin" || roleGlobal=="sekretaris";
+  let bisaHapusP = roleGlobal=="admin";
+  formP.style.display = bisaInputP? 'block' : 'none';
+
+  let tingkatan=[...new Set(d.siswa.map(x=>x.tingkatan).filter(Boolean))];filterTing.innerHTML="<option value=''>Semua Tingkatan</option>"+tingkatan.map(t=>`<option>${t}</option>`).join("");let siswaFilter=d.siswa.filter(x=>!filterTing.value||x.tingkatan==filterTing.value);
+  tabS.innerHTML="<table><tr><th>NIK</th><th>Nama</th><th>JK</th><th>TTL</th><th>Agama</th><th>Alamat</th><th>No HP</th><th>Tingkatan</th>"+((bisaEditS||bisaHapusS)?"<th>Aksi</th>":"")+"</tr>"+siswaFilter.map(x=>`<tr><td>'${x.nik}</td><td>${x.nama}</td><td>${x.jk}</td><td>${x.ttl}</td><td>${x.agama}</td><td>${x.alamat}</td><td>'${x.hp}</td><td>${x.tingkatan}</td>${(bisaEditS||bisaHapusS)?`<td>${bisaEditS?`<button onclick="editSiswa(${x.row},'${x.nik}','${x.nama}','${x.jk}','${x.ttl}','${x.agama}','${x.alamat}','${x.hp}','${x.tingkatan}')" class="btn-edit">Edit</button>`:""}${bisaHapusS?`<button onclick="deleteRow('Siswa',${x.row})" class="btn-hapus">Hapus</button>`:""}</td>`:""}</tr>`).join("")+"</table>";
+  
+  tabW.innerHTML="<table><tr><th>Nama</th><th>Tahun</th><th>Alamat</th>"+((bisaEditW||bisaHapusW)?"<th>Aksi</th>":"")+"</tr>"+d.warga.map(x=>`<tr><td>${x.nama}</td><td>${x.tahun}</td><td>${x.alamat}</td>${(bisaEditW||bisaHapusW)?`<td>${bisaEditW?`<button onclick="editWarga(${x.row},'${x.nama}','${x.tahun}','${x.alamat}')" class="btn-edit">Edit</button>`:""}${bisaHapusW?`<button onclick="deleteRow('DataWarga',${x.row})" class="btn-hapus">Hapus</button>`:""}</td>`:""}</tr>`).join("")+"</table>";
+
+  tabP.innerHTML="<table><tr><th>Foto</th><th>NIK</th><th>Nama</th><th>JK</th><th>TTL</th><th>Agama</th><th>Alamat</th><th>Rayon</th><th>Ranting</th><th>Pekerjaan</th><th>TB/BB</th><th>Tahun</th><th>No HP</th>"+((bisaEditP||bisaHapusP)?"<th>Aksi</th>":"")+"</tr>"+(d.prawarga||[]).map(x=>`<tr><td><img src="${x.foto}" class="foto-prawarga" onerror="this.src='https://via.placeholder.com/60x80'"></td><td>'${x.nik}</td><td>${x.nama}</td><td>${x.jk}</td><td>${x.ttl}</td><td>${x.agama}</td><td>${x.alamat}</td><td>${x.rayon}</td><td>${x.ranting}</td><td>${x.pekerjaan}</td><td>${x.tinggi}/${x.berat}</td><td>${x.tahunAngkatan}</td><td>'${x.hp}</td>${(bisaEditP||bisaHapusP)?`<td>${bisaEditP?`<button onclick="editPrawarga(${x.row},'${x.nik}','${x.nama}','${x.jk}','${x.ttl}','${x.agama}','${x.alamat}','${x.rayon}','${x.ranting}','${x.pekerjaan}','${x.tinggi}','${x.berat}','${x.tahunAngkatan}','${x.hp}','${x.foto}')" class="btn-edit">Edit</button>`:""}${bisaHapusP?`<button onclick="deleteRow('Prawarga',${x.row})" class="btn-hapus">Hapus</button>`:""}</td>`:""}</tr>`).join("")+"</table>";
+
+  let bulanUnik=[...new Set(d.keuangan.map(x=>x.tanggal?x.tanggal.substring(0,7):""))].filter(Boolean).sort().reverse();filterBulan.innerHTML="<option value=''>Semua Bulan</option>"+bulanUnik.map(b=>{let[th,bl]=b.split('-');let namaBulan=new Date(th,bl-1).toLocaleString('id-ID',{month:'long',year:'numeric'});return `<option value="${b}">${namaBulan}</option>`}).join("");let keuFilter=d.keuangan.filter(x=>{let cocokBulan=!filterBulan.value||x.tanggal.substring(0,7)==filterBulan.value;let cocokKat=!filterKategori.value||x.kategori==filterKategori.value;let cocokTipe=!filterTipe.value||x.tipe==filterTipe.value;return cocokBulan&&cocokKat&&cocokTipe;});
+  tabK.innerHTML="<table><tr><th>Tgl</th><th>Tipe</th><th>Kategori</th><th>Nama</th><th>Keterangan</th><th>Jumlah</th>"+((bisaEditK||bisaHapusK)?"<th>Aksi</th>":"")+"</tr>"+keuFilter.map(x=>`<tr><td>${x.tanggal}</td><td>${x.tipe}</td><td>${x.kategori}</td><td>${x.nama}</td><td>${x.keterangan}</td><td>Rp ${x.jumlah.toLocaleString('id-ID')}</td>${(bisaEditK||bisaHapusK)?`<td>${bisaEditK?`<button onclick="editKeuangan(${x.row},'${x.tanggal}','${x.tipe}','${x.kategori}','${x.nama}','${x.keterangan}',${x.jumlah})" class="btn-edit">Edit</button>`:""}${bisaHapusK?`<button onclick="deleteRow('Keuangan',${x.row})" class="btn-hapus">Hapus</button>`:""}</td>`:""}</tr>`).join("")+"</table>";
+  
+  if(roleGlobal=="admin"){tabU.innerHTML="<table><tr><th>Username</th><th>Password</th><th>Nama</th><th>Role</th><th>Aksi</th></tr>"+d.users.map(x=>`<tr><td>${x.username}</td><td>${x.password}</td><td>${x.nama}</td><td>${x.role}</td><td><button onclick="editUser(${x.row},'${x.username}','${x.password}','${x.role}','${x.nama}')" class="btn-edit">Edit</button> <button onclick="deleteRow('Users',${x.row})" class="btn-hapus">Hapus</button></td></tr>`).join("")+"</table>";}
+}
+
+function autoFillP(){const nama=selectSiswaPutih.value;const data=dataGlobal.siswa.find(x=>x.nama==nama);if(data){nikP.value=data.nik;nP.value=data.nama;jkP.value=data.jk;ttlP.value=data.ttl;agamaP.value=data.agama;alP.value=data.alamat;hpP.value=data.hp;}}
+
+async function generatePrawarga(){if(!selectSiswaPutih.value)return alert("Pilih nama dulu");let res=await post({action:"generatePrawarga",nama:selectSiswaPutih.value,role:roleGlobal});if(res.status=="exists")return alert("Data sudah ada");if(res.status=="noakses")return alert("No akses");alert("Berhasil generate");load();}
+
+async function loadQR(){tahunQR.innerText=tahunIni;bulanQR.innerText=bulanIni;let d=await post({action:"getQRIuran"});let dFilter=d.filter(x=>x.tahun==tahunIni&&x.bulan==bulanIni);if(filterQR.value)dFilter=dFilter.filter(x=>x.tipe==filterQR.value);tabQR.innerHTML="<table><tr><th>Tipe</th><th>Nama</th><th>Jumlah</th><th>Status</th><th>Aksi</th></tr>"+dFilter.map(x=>`<tr><td>${x.tipe}</td><td>${x.nama}</td><td>Rp ${Number(x.jumlah).toLocaleString('id-ID')}</td><td class="${x.status=='Sudah Bayar'?'status-lunas':'status-belum'}">${x.status}</td><td>${x.status=='Belum Bayar'?`<button onclick="bayarQR(${x.row},'${x.tipe}','${x.nama}','${x.bulan}','${x.tahun}',${x.jumlah})" class="btn btn-green">Bayar</button>`:"Lunas"}</td></tr>`).join("")+"</table>";}
+async function bayarQR(row,tipe,nama,bulan,tahun,jumlah){if(!confirm("Tandai sudah bayar?"))return;await post({action:"bayarQRIuran",row:row,tipe:tipe,nama:nama,bulan:bulan,tahun:tahun,jumlah:jumlah});alert("Status dibayar. Total otomatis masuk ke Keuangan");loadQR();load();}
+async function generateQRBulanan(){let tipe=qrTipe.value;let jumlah=qrJumlah.value;if(!tipe||!jumlah)return alert("Lengkapi");let res=await post({action:"generateQRIuranBulanan",tipe:tipe,tahun:tahunIni,bulan:bulanIni,jumlah:jumlah});if(res.status=="exists")return alert("Sudah digenerate");alert("Berhasil generate "+res.jumlah+" data");loadQR();}
+
+function editKeuangan(row,tglVal,tipeVal,katVal,namaVal,ketVal,jumVal){editRowK=row;tgl.value=tglVal;tipe.value=tipeVal;kat.value=katVal;ket.value=ketVal;jum.value=jumVal;nS.value=namaVal;nW.value=namaVal;toggle();judulK.innerText="Edit Keuangan";btnSimpanK.classList.add('hidden');btnUpdateK.classList.remove('hidden');btnCancelK.classList.remove('hidden');window.scrollTo(0,0);}
+function cancelEditK(){editRowK=null;tgl.value='';kat.value='Kas Siswa';ket.value='';jum.value='';judulK.innerText="Input Keuangan";btnSimpanK.classList.remove('hidden');btnUpdateK.classList.add('hidden');btnCancelK.classList.add('hidden');}
+async function updateK(){if(!(roleGlobal=="admin"||roleGlobal=="bendahara"))return alert("Anda tidak punya akses edit");let n=kat.value=="Kas Warga"||kat.value=="Iuran Warga"?nW.value:nS.value;await post({action:"updateKeuangan",row:editRowK,tanggal:tgl.value,tipe:tipe.value,kategori:kat.value,nama:n,keterangan:ket.value,jumlah:jum.value});alert("Diupdate");cancelEditK();load();}
+async function saveK(){if(!(roleGlobal=="admin"||roleGlobal=="bendahara"))return alert("Anda tidak punya akses");let n=kat.value=="Kas Warga"||kat.value=="Iuran Warga"?nW.value:nS.value;await post({action:"addKeuangan",tanggal:tgl.value,tipe:tipe.value,kategori:kat.value,nama:n,keterangan:ket.value,jumlah:jum.value});alert("Tersimpan");load();}
+
+function editSiswa(row,nikVal,namaVal,jkVal,ttlVal,agamaVal,alamatVal,hpVal,tingVal){editRowS=row;nikS.value=nikVal;n.value=namaVal;jk.value=jkVal;ttl.value=ttlVal;agama.value=agamaVal;al.value=alamatVal;hp.value=hpVal;ting.value=tingVal;judulS.innerText="Edit Siswa";btnSimpanS.classList.add('hidden');btnUpdateS.classList.remove('hidden');btnCancelS.classList.remove('hidden');window.scrollTo(0,0);}
+function cancelEditS(){editRowS=null;nikS.value='';n.value='';jk.value='';ttl.value='';al.value='';hp.value='';judulS.innerText="Data Siswa";btnSimpanS.classList.remove('hidden');btnUpdateS.classList.add('hidden');btnCancelS.classList.add('hidden');}
+async function updateS(){if(!(roleGlobal=="admin"||roleGlobal=="sekretaris"))return alert("Anda tidak punya akses edit");await post({action:"updateSiswa",row:editRowS,nik:nikS.value,nama:n.value,jk:jk.value,ttl:ttl.value,agama:agama.value,alamat:al.value,hp:hp.value,tingkatan:ting.value});alert("Diupdate");cancelEditS();load();}
+async function saveS(){if(!(roleGlobal=="admin"||roleGlobal=="sekretaris"))return alert("Anda tidak punya akses");await post({action:"addSiswa",nik:nikS.value,nama:n.value,jk:jk.value,ttl:ttl.value,agama:agama.value,alamat:al.value,hp:hp.value,tingkatan:ting.value});alert("Tersimpan");load();}
+
+function editWarga(row,namaVal,tahunVal,alamatVal){editRowW=row;nWg.value=namaVal;thn.value=tahunVal;alWg.value=alamatVal;judulW.innerText="Edit Warga";btnSimpanW.classList.add('hidden');btnUpdateW.classList.remove('hidden');btnCancelW.classList.remove('hidden');window.scrollTo(0,0);}
+function cancelEditW(){editRowW=null;nWg.value='';thn.value='';alWg.value='';judulW.innerText="Data Warga";btnSimpanW.classList.remove('hidden');btnUpdateW.classList.add('hidden');btnCancelW.classList.add('hidden');}
+async function updateW(){if(!(roleGlobal=="admin"||roleGlobal=="sekretaris"))return alert("Anda tidak punya akses edit");await post({action:"updateWarga",row:editRowW,nama:nWg.value,tahun:thn.value,alamat:alWg.value});alert("Diupdate");cancelEditW();load();}
+async function saveW(){if(!(roleGlobal=="admin"||roleGlobal=="sekretaris"))return alert("Anda tidak punya akses");await post({action:"addWarga",nama:nWg.value,tahun:thn.value,alamat:alWg.value});alert("Tersimpan");load();}
+
+function editPrawarga(row,nikVal,namaVal,jkVal,ttlVal,agamaVal,alamatVal,rayonVal,rantingVal,kerjaVal,tinggiVal,beratVal,tahunVal,hpVal,fotoVal){editRowP=row;nikP.value=nikVal;nP.value=namaVal;jkP.value=jkVal;ttlP.value=ttlVal;agamaP.value=agamaVal;alP.value=alamatVal;rayonP.value=rayonVal;rantingP.value=rantingVal;kerjaP.value=kerjaVal;tinggiP.value=tinggiVal;beratP.value=beratVal;tahunP.value=tahunVal;hpP.value=hpVal;fotoP.value=fotoVal;judulP.innerText="Edit Prawarga";btnSimpanP.classList.add('hidden');btnUpdateP.classList.remove('hidden');btnCancelP.classList.remove('hidden');window.scrollTo(0,0);}
+function cancelEditP(){editRowP=null;nikP.value='';nP.value='';judulP.innerText="Data Calon Warga";btnSimpanP.classList.remove('hidden');btnUpdateP.classList.add('hidden');btnCancelP.classList.add('hidden');}
+async function updateP(){if(!(roleGlobal=="admin"||roleGlobal=="sekretaris"))return alert("Anda tidak punya akses edit");await post({action:"updatePrawarga",row:editRowP,nik:nikP.value,nama:nP.value,jk:jkP.value,ttl:ttlP.value,agama:agamaP.value,alamat:alP.value,rayon:rayonP.value,ranting:rantingP.value,pekerjaan:kerjaP.value,tinggi:tinggiP.value,berat:beratP.value,tahunAngkatan:tahunP.value,hp:hpP.value,foto:fotoP.value,role:roleGlobal});alert("Diupdate");cancelEditP();load();}
+async function saveP(){if(!(roleGlobal=="admin"||roleGlobal=="sekretaris"))return alert("Anda tidak punya akses");await post({action:"addPrawarga",nik:nikP.value,nama:nP.value,jk:jkP.value,ttl:ttlP.value,agama:agamaP.value,alamat:alP.value,rayon:rayonP.value,ranting:rantingP.value,pekerjaan:kerjaP.value,tinggi:tinggiP.value,berat:beratP.value,tahunAngkatan:tahunP.value,hp:hpP.value,foto:fotoP.value,role:roleGlobal});alert("Tersimpan");load();}
+
+function editUser(row,uVal,pVal,rVal,namaVal){editRow=row;u.value=uVal;p.value=pVal;r.value=rVal;namaL.value=namaVal;btnSimpan.classList.add('hidden');btnUpdate.classList.remove('hidden');btnCancel.classList.remove('hidden');}
+function cancelEdit(){editRow=null;u.value='';p.value='';namaL.value='';btnSimpan.classList.remove('hidden');btnUpdate.classList.add('hidden');btnCancel.classList.add('hidden');}
+async function updateU(){await post({action:"updateUser",row:editRow,username:u.value,password:p.value,role:r.value,nama:namaL.value});alert("Diupdate");cancelEdit();load();}
+async function saveU(){await post({action:"addUser",username:u.value,password:p.value,role:r.value,nama:namaL.value});alert("Tersimpan");load();}
+
+async function deleteRow(sheet,row){if(roleGlobal!="admin")return alert("Hanya admin yg bisa hapus");if(!confirm("Yakin hapus?"))return;await post({action:"deleteData",sheet:sheet,row:row,role:roleGlobal});alert("Dihapus");load();}
+
+async function exportPDF(jenis){let ttd=await post({action:"getTTD"});let html=exportArea;html.innerHTML=`<div class="logo-header"><img src="${LOGO_URL}"><h2>Rayon Wonorejo</h2></div><h3>Data ${jenis}</h3><div id="tbl"></div><div style="margin-top:50px;display:flex;justify-content:space-around"><div style="text-align:center">Ketua<br><br><br><b>${ttd.ketua}</b></div><div style="text-align:center">Bendahara<br><br><br><b>${ttd.bendahara}</b></div></div>`;
+if(jenis=='keuangan')tbl.innerHTML=document.getElementById('tabK').innerHTML;
+if(jenis=='siswa')tbl.innerHTML=document.getElementById('tabS').innerHTML;
+if(jenis=='warga')tbl.innerHTML=document.getElementById('tabW').innerHTML;
+if(jenis=='prawarga')tbl.innerHTML=document.getElementById('tabP').innerHTML;
+if(jenis=='qr')tbl.innerHTML=document.getElementById('tabQR').innerHTML;
+const canvas=await html2canvas(html);const imgData=canvas.toDataURL('image/png');const pdf=new jspdf.jsPDF('l','mm','a4');pdf.addImage(imgData,'PNG',10,10,277,180);pdf.save(`Data_${jenis}.pdf`);
+}
+
+async function exportFoto(jenis){let ttd=await post({action:"getTTD"});let html=exportArea;html.innerHTML=`<div class="logo-header"><img src="${LOGO_URL}"><h2>Rayon Wonorejo</h2></div><h3>Data ${jenis}</h3><div id="tbl"></div><div style="margin-top:50px;display:flex;justify-content:space-around"><div style="text-align:center">Ketua<br><br><br><b>${ttd.ketua}</b></div><div style="text-align:center">Bendahara<br><br><br><b>${ttd.bendahara}</b></div></div>`;
+if(jenis=='keuangan')tbl.innerHTML=document.getElementById('tabK').innerHTML;
+if(jenis=='prawarga')tbl.innerHTML=document.getElementById('tabP').innerHTML;
+if(jenis=='qr')tbl.innerHTML=document.getElementById('tabQR').innerHTML;
+const canvas=await html2canvas(html);const link=document.createElement('a');link.download=`Data_${jenis}.png`;link.href=canvas.toDataURL();link.click();
+}
+
+function exportExcel(jenis){let wb=XLSX.utils.book_new();let ws;
+if(jenis=='siswa')ws=XLSX.utils.json_to_sheet(dataGlobal.siswa);
+if(jenis=='warga')ws=XLSX.utils.json_to_sheet(dataGlobal.warga);
+XLSX.utils.book_append_sheet(wb,ws,"Data");XLSX.writeFile(wb,`Data_${jenis}.xlsx`);
+}
+
+async function exportRekapPDF(){let ttd=await post({action:"getTTD"});let html=exportArea;let rekap=dataGlobal.keuangan.filter(x=>x.tanggal.substring(0,4)==tahunIni);
+html.innerHTML=`<div class="logo-header"><img src="${LOGO_URL}"><h2>Rayon Wonorejo</h2></div><h3>Rekap Keuangan Tahun ${tahunIni}</h3><div id="tbl"></div><div style="margin-top:50px;display:flex;justify-content:space-around"><div style="text-align:center">Ketua<br><br><br><b>${ttd.ketua}</b></div><div style="text-align:center">Bendahara<br><br><br><b>${ttd.bendahara}</b></div></div>`;
+tbl.innerHTML="<table><tr><th>Tgl</th><th>Kategori</th><th>Nama</th><th>Jumlah</th></tr>"+rekap.map(x=>`<tr><td>${x.tanggal}</td><td>${x.kategori}</td><td>${x.nama}</td><td>Rp ${x.jumlah.toLocaleString('id-ID')}</td></tr>`).join("")+"</table>";
+const canvas=await html2canvas(html);const imgData=canvas.toDataURL('image/png');const pdf=new jspdf.jsPDF('l','mm','a4');pdf.addImage(imgData,'PNG',10,10,277,180);pdf.save(`Rekap_${tahunIni}.pdf`);
+}
+</script>
+</body>
+</html>
