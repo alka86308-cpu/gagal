@@ -21,11 +21,10 @@ document.addEventListener("DOMContentLoaded", function () {
  *************************************************/
 
 async function login() {
-    alert("Login dijalankan");
-
-    console.log(typeof apiPost);
+    alert("apiPost = " + typeof apiPost);
     return;
     }
+
 /*************************************************
  * CEK LOGIN
  *************************************************/
