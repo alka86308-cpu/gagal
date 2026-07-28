@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
  *************************************************/
 
 async function login() {
+    alert("Login dijalankan");
 
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
