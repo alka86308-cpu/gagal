@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        SIM Administrasi PSHT
+    </title>
+
+    <link rel="icon"
+        href="assets/logo.png">
+
+    <link rel="stylesheet"
+        href="css/login.css">
+
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-card">
+
+            <img
+                src="assets/logo.png"
+                alt="Logo PSHT"
+                class="logo">
+
+            <h1>
+                SIM Administrasi
+            </h1>
+
+            <p class="subtitle">
+                PSHT Rayon Wonorejo
+            </p>
+
+            <div class="input-group">
+
+                <label>
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Masukkan Username"
+                    autocomplete="username">
+
+            </div>
+
+            <div class="input-group">
+
+                <label>
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Masukkan Password"
+                    autocomplete="current-password">
+
+            </div>
+
+            <button
+                id="btnLogin"
+                onclick="login()">
+
+                LOGIN
+
+            </button>
+
+            <div
+                id="loading"
+                class="loading">
+
+                Memproses Login...
+
+            </div>
+
+            <div
+                id="message"
+                class="message">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="js/api.js"></script>
+
+    <script src="js/auth.js"></script>
+
+</body>
+
+</html>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0b7a38;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.login-container{
+    width:100%;
+    max-width:420px;
+}
+
+.login-card{
+    background:#ffffff;
+    border-radius:20px;
+    padding:35px 30px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    text-align:center;
+}
+
+.logo{
+    width:110px;
+    height:110px;
+    object-fit:contain;
+    margin-bottom:15px;
+}
+
+h1{
+    color:#0b7a38;
+    font-size:28px;
+    margin-bottom:5px;
+}
+
+.subtitle{
+    color:#666;
+    margin-bottom:30px;
+}
+
+.input-group{
+    text-align:left;
+    margin-bottom:18px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    color:#333;
+    font-weight:bold;
+}
+
+.input-group input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+    outline:none;
+    transition:.3s;
+}
+
+.input-group input:focus{
+    border-color:#0b7a38;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:#0b7a38;
+    color:#fff;
+    font-size:17px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#09652f;
+}
+
+.loading{
+    display:none;
+    margin-top:15px;
+    color:#0b7a38;
+    font-weight:bold;
+}
+
+.message{
+    margin-top:15px;
+    color:red;
+    font-size:14px;
+}
+
+@media(max-width:480px){
+
+.login-card{
+    padding:25px 20px;
+}
+
+.logo{
+    width:90px;
+    height:90px;
+}
+
+h1{
+    font-size:24px;
+}
+
+}
+/*************************************************
+ * API CONFIG
+ *************************************************/
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyLkrZB_2_sbn3qrjqDN6aGN3QxS8VcvvvWkDX15Ll3jrgpiurExvxKUWQ5_knZpZQN/exec";
+
+/*************************************************
+ * REQUEST GET
+ *************************************************/
+
+async function apiGet(params={}){
+
+    const query=
+    new URLSearchParams(params);
+
+    const response=
+    await fetch(
+
+        API_URL+"?"+query.toString()
+
+    );
+
+    return await response.json();
+
+}
+
+/*************************************************
+ * REQUEST POST
+ *************************************************/
+
+async function apiPost(data={}){
+
+    const response=
+    await fetch(
+
+        API_URL,
+
+        {
+
+            method:"POST",
+
+            body:new URLSearchParams(data)
+
+        }
+
+    );
+
+    return await response.json();
+
+}
+/*************************************************
+ * SHOW LOADING
+ *************************************************/
+
+function showLoading(){
+
+    document
+    .getElementById("loading")
+    .style.display="block";
+
+    document
+    .getElementById("btnLogin")
+    .disabled=true;
+
+}
+
+/*************************************************
+ * HIDE LOADING
+ *************************************************/
+
+function hideLoading(){
+
+    document
+    .getElementById("loading")
+    .style.display="none";
+
+    document
+    .getElementById("btnLogin")
+    .disabled=false;
+
+}
+/*************************************************
+ * MESSAGE
+ *************************************************/
+
+function showMessage(
+
+text,
+
+color="red"
+
+){
+
+    const msg=
+
+    document.getElementById(
+
+        "message"
+
+    );
+
+    msg.innerHTML=text;
+
+    msg.style.color=color;
+
+}
+/*************************************************
+ * LOGIN
+ *************************************************/
+
+async function login(){
+
+    const username=
+
+        document
+        .getElementById("username")
+        .value
+        .trim();
+
+    const password=
+
+        document
+        .getElementById("password")
+        .value
+        .trim();
+
+    if(username==""){
+
+        showMessage("Username wajib diisi");
+
+        return;
+
+    }
+
+    if(password==""){
+
+        showMessage("Password wajib diisi");
+
+        return;
+
+    }
+
+    showLoading();
+
+    try{
+
+        const result=
+
+        await apiPost({
+
+            action:"login",
+
+            username:username,
+
+            password:password
+
+        });
+
+        hideLoading();
+
+        if(result.status){
+
+            localStorage.setItem(
+
+                "TOKEN",
+
+                result.token
+
+            );
+
+            localStorage.setItem(
+
+                "ROLE",
+
+                result.role
+
+            );
+
+            localStorage.setItem(
+
+                "NAMA",
+
+                result.nama
+
+            );
+
+            showMessage(
+
+                "Login berhasil",
+
+                "green"
+
+            );
+
+            setTimeout(function(){
+
+                window.location.href=
+
+                "dashboard.html";
+
+            },800);
+
+        }else{
+
+            showMessage(
+
+                result.message
+
+            );
+
+        }
+
+    }
+
+    catch(err){
+
+        hideLoading();
+
+        showMessage(
+
+            "Tidak dapat terhubung ke server."
+
+        );
+
+    }
+
+}
+/*************************************************
+ * ENTER UNTUK LOGIN
+ *************************************************/
+
+document.addEventListener(
+
+    "keydown",
+
+    function(e){
+
+        if(
+
+            e.key==="Enter"
+
+        ){
+
+            login();
+
+        }
+
+    }
+
+);
+/*************************************************
+ * SUDAH LOGIN?
+ *************************************************/
+
+window.onload=function(){
+
+    const token=
+
+    localStorage.getItem(
+
+        "TOKEN"
+
+    );
+
+    if(token){
+
+        window.location.href=
+
+        "dashboard.html";
+
+    }
+
+}
