@@ -31,6 +31,8 @@ async function login() {
     }
 
     showLoading();
+    console.log("Mulai login...");
+console.log("Username:", username);
 
     try {
 
@@ -62,6 +64,8 @@ async function login() {
     } catch (err) {
 
         hideLoading();
+        alert(err.message);
+console.log(err);
 
         showMessage("Tidak dapat terhubung ke server", "red");
 
