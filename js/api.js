@@ -85,15 +85,5 @@ async function apiRequest(method, action, data = {}) {
             message:"Gagal terhubung ke server."
 
         };
-
-apiPost("getsiswa", {
-    token: token
-});
-        
     }
-
-    }
-apiPost({
-    action: "getsiswa",
-    token: token
-});
+        }
