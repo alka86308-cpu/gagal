@@ -22,8 +22,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 async function login() {
     alert("Login dijalankan");
-return;
-}
+
+    console.log(typeof apiPost);
+    return;
+    }
 /*************************************************
  * CEK LOGIN
  *************************************************/
