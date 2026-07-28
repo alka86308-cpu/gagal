@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Rayon Wonorejo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#f0f2f5}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.login-box{max-width:400px;margin:100px auto;background:white;padding:30px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.login-box h2{text-align:center;margin-bottom:20px;color:#333}
+.login-box input{width:100%;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:8px}
+.btn{width:100%;padding:12px;background:#10b981;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+.btn:hover{opacity:0.9}
+.header{background:#10b981;color:white;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
+.menu{display:flex;gap:10px;padding:15px;background:white;flex-wrap:wrap}
+.menu-btn{padding:10px 20px;border:none;border-radius:8px;color:white;cursor:pointer;font-weight:bold}
+.card{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.05);margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.stat-card{padding:20px;border-radius:12px;color:white}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #eee}
+th{background:#f8f9fa}
+.btn-edit{background:#3b82f6;color:white;padding:5px 10px;border:none;border-radius:5px;cursor:pointer}
+.btn-hapus{background:#ef4444;color:white;padding:5px 10px;border:none;border-radius:5px;cursor:pointer}
+.form-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:25px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:1000;width:90%;max-width:500px}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999}
+.hidden{display:none}
+.loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:bold}
+.status-lunas{color:#10b981;font-weight:bold}
+.status-belum{color:#ef4444;font-weight:bold}
+.foto-prawarga{width:60px;height:80px;object-fit:cover;border-radius:5px}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading hidden">Loading...</div>
+
+<div id="loginPage" class="login-box">
+  <h2>Login Rayon Wonorejo</h2>
+  <input type="text" id="username" placeholder="Username" value="admin">
+  <input type="password" id="password" placeholder="Password" value="admin123">
+  <button class="btn" onclick="login()">Login</button>
+  <p id="err" style="color:red;text-align:center;margin-top:10px"></p>
+</div>
+
+<div id="app" class="hidden">
+  <div class="header">
+    <h3>Rayon Wonorejo</h3>
+    <div><span id="nama"></span> - <span id="role"></span> | <button onclick="logout()" style="background:none;border:none;color:white;cursor:pointer">Logout</button></div>
+  </div>
+  <div id="menu" class="menu"></div>
+  <div class="container">
+        <!-- DASHBOARD -->
+    <div id="dashboard">
+      <h2>Dashboard</h2>
+      <div class="grid">
+        <div class="stat-card" style="background:#10b981"><h4>Total Siswa</h4><h2 id="tS">0</h2></div>
+        <div class="stat-card" style="background:#3b82f6"><h4>Pemasukan</h4><h2 id="masuk">Rp 0</h2></div>
+        <div class="stat-card" style="background:#ef4444"><h4>Pengeluaran</h4><h2 id="keluar">Rp 0</h2></div>
+        <div class="stat-card" style="background:#f59e0b"><h4>Saldo</h4><h2 id="saldo">Rp 0</h2></div>
+        <div class="stat-card" style="background:#8b5cf6"><h4>Kas Siswa</h4><h2 id="kS">Rp 0</h2></div>
+        <div class="stat-card" style="background:#ec4899"><h4>Kas Warga</h4><h2 id="kW">Rp 0</h2></div>
+      </div>
+    </div>
+
+    <!-- KEUANGAN -->
+    <div id="keuangan" class="hidden">
+      <div class="card">
+        <h2>Data Keuangan</h2>
+        <button class="btn" style="width:auto" onclick="showFormKeuangan()">+ Tambah Data</button>
+        <div style="margin:15px 0"><select id="fTipe" onchange="loadKeuangan()"><option value="">Semua Tipe</option><option>Pemasukan</option><option>Pengeluaran</option></select>
+        <select id="fKategori" onchange="loadKeuangan()"><option value="">Semua Kategori</option></select>
+        <button onclick="exportKeuangan()">Export</button></div>
+        <table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Keterangan</th><th>Jumlah</th><th>Aksi</th></tr></thead><tbody id="tblKeuangan"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SISWA -->
+    <div id="siswa" class="hidden">
+      <div class="card">
+        <h2>Data Siswa</h2>
+        <button class="btn" style="width:auto" onclick="showFormSiswa()">+ Tambah Siswa</button>
+        <table><thead><tr><th>Nama</th><th>Kelas</th><th>Rayon</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tblSiswa"></tbody></table>
+      </div>
+    </div>
+
+    <!-- WARGA -->
+    <div id="warga" class="hidden">
+      <div class="card">
+        <h2>Data Warga</h2>
+        <button class="btn" style="width:auto" onclick="showFormWarga()">+ Tambah Warga</button>
+        <table><thead><tr><th>Nama</th><th>Rayon</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tblWarga"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PRAWARGA -->
+    <div id="prawarga" class="hidden">
+      <div class="card">
+        <h2>Data Pra Warga</h2>
+        <button class="btn" style="width:auto" onclick="showFormPrawarga()">+ Tambah Pra Warga</button>
+        <table><thead><tr><th>Foto</th><th>Nama</th><th>Asal</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tblPrawarga"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP FORMS -->
+<div id="overlay" class="overlay hidden" onclick="closeForm('formKeuangan');closeForm('formSiswa');closeForm('formWarga');closeForm('formPrawarga')"></div>
+<div id="formKeuangan" class="form-popup hidden"><h3 id="titleKeuangan">Tambah Keuangan</h3><input type="hidden" id="kID"><input type="date" id="kTanggal"><select id="kTipe" onchange="loadKategori()"><option>Pemasukan</option><option>Pengeluaran</option></select><select id="kKategori"></select><input type="text" id="kKet" placeholder="Keterangan"><input type="number" id="kJumlah" placeholder="Jumlah"><button class="btn" onclick="saveKeuangan()">Simpan</button></div>
+<div id="formSiswa" class="form-popup hidden"><h3 id="titleSiswa">Tambah Siswa</h3><input type="hidden" id="sID"><input type="text" id="sNama" placeholder="Nama"><input type="text" id="sKelas" placeholder="Kelas"><input type="text" id="sRayon" placeholder="Rayon"><button class="btn" onclick="saveSiswa()">Simpan</button></div>
+<div id="formWarga" class="form-popup hidden"><h3 id="titleWarga">Tambah Warga</h3><input type="hidden" id="wID"><input type="text" id="wNama" placeholder="Nama"><input type="text" id="wRayon" placeholder="Rayon"><button class="btn" onclick="saveWarga()">Simpan</button></div>
+<div id="formPrawarga" class="form-popup hidden"><h3 id="titlePrawarga">Tambah Pra Warga</h3><input type="hidden" id="pID"><input type="text" id="pNama" placeholder="Nama"><input type="text" id="pAsal" placeholder="Asal"><input type="file" id="pFoto"><button class="btn" onclick="savePrawarga()">Simpan</button></div>
+<div id="exportArea" class="hidden"></div>
+<script>
+const API="https://script.google.com/macros/s/AKfycbyg7vN14buXU9gSfYvHsq7nFbNsUMfHTVH0Tp0X71heUipS0yomFIKT9US7WTwNtbph/exec";
+
+let user={}, data={siswa:[],warga:[],prawarga:[],keuangan:[],kategori:[]};
+
+function showLoading(s){document.getElementById('loading').classList.toggle('hidden',!s)}
+function api(action,params={}){
+  showLoading(true);
+  return fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...params,token:user.token})})
+.then(r=>r.json()).finally(()=>showLoading(false))
+}
+
+function login(){
+  api('login',{u:username.value,p:password.value}).then(res=>{
+    if(res.status=='ok'){
+      user=res; localStorage.setItem('user',JSON.stringify(user));
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      document.getElementById('nama').innerText=user.nama;
+      document.getElementById('role').innerText=user.role;
+      loadMenu(); loadDashboard();
+    }else err.innerText=res.msg
+  })
+}
+function logout(){localStorage.clear();location.reload()}
+function loadMenu(){
+  let m=document.getElementById('menu'); m.innerHTML='';
+  let btns=[['dashboard','#10b981'],['keuangan','#3b82f6'],['siswa','#8b5cf6'],['warga','#f59e0b'],['prawarga','#ef4444']];
+  btns.forEach(b=>{
+    let btn=document.createElement('button');
+    btn.className='menu-btn'; btn.style.background=b[1]; btn.innerText=b[0].toUpperCase();
+    btn.onclick=()=>showPage(b[0]); m.appendChild(btn);
+  })
+}
+function showPage(p){['dashboard','keuangan','siswa','warga','prawarga'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(p).classList.remove('hidden');if(p!='dashboard')window['load'+p.charAt(0).toUpperCase()+p.slice(1)]()}
+function loadDashboard(){
+  api('getDashboard').then(res=>{
+    data=res; document.getElementById('tS').innerText=res.siswa.length;
+    let masuk=res.keuangan.filter(x=>x.Tipe=='Pemasukan').reduce((a,b)=>a+b.Jumlah,0);
+    let keluar=res.keuangan.filter(x=>x.Tipe=='Pengeluaran').reduce((a,b)=>a+b.Jumlah,0);
+    document.getElementById('masuk').innerText='Rp '+masuk.toLocaleString('id');
+    document.getElementById('keluar').innerText='Rp '+keluar.toLocaleString('id');
+    document.getElementById('saldo').innerText='Rp '+(masuk-keluar).toLocaleString('id');
+    document.getElementById('kS').innerText='Rp '+res.kasSiswa.toLocaleString('id');
+    document.getElementById('kW').innerText='Rp '+res.kasWarga.toLocaleString('id');
+  })
+}
+function loadKeuangan(){
+  api('getKeuangan',{tipe:fTipe.value,kategori:fKategori.value}).then(res=>{
+    data.keuangan=res; let tb='';
+    res.forEach(x=>{tb+=`<tr><td>${x.Tanggal}</td><td>${x.Tipe}</td><td>${x.Kategori}</td><td>${x.Keterangan}</td><td>Rp ${x.Jumlah.toLocaleString('id')}</td><td><button class=btn-edit onclick=editKeuangan('${x.ID}')>Edit</button><button class=btn-hapus onclick=hapusKeuangan('${x.ID}')>Hapus</button></td></tr>`});
+    tblKeuangan.innerHTML=tb;
+  })
+}
+function loadKategori(){api('getKategori',{tipe:kTipe.value}).then(res=>{kKategori.innerHTML='<option value="">Pilih Kategori</option>'+res.map(x=>`<option>${x}</option>`).join('')})}
+function showFormKeuangan(id=''){kID.value=id; titleKeuangan.innerText=id?'Edit':'Tambah'; overlay.classList.remove('hidden'); formKeuangan.classList.remove('hidden'); loadKategori()}
+function saveKeuangan(){api('saveKeuangan',{id:kID.value,tgl:kTanggal.value,tipe:kTipe.value,kat:kKategori.value,ket:kKet.value,jml:kJumlah.value}).then(()=>{closeForm('formKeuangan');loadKeuangan();loadDashboard()})}
+function hapusKeuangan(id){if(confirm('Hapus?'))api('hapusKeuangan',{id}).then(()=>{loadKeuangan();loadDashboard()})}
+function loadSiswa(){api('getSiswa').then(res=>{data.siswa=res;let tb='';res.forEach(x=>{tb+=`<tr><td>${x.Nama}</td><td>${x.Kelas}</td><td>${x.Rayon}</td><td class=${x.Status=='Lunas'?'status-lunas':'status-belum'}>${x.Status}</td><td><button class=btn-edit onclick=editSiswa('${x.ID}')>Edit</button><button class=btn-hapus onclick=hapusSiswa('${x.ID}')>Hapus</button></td></tr>`});tblSiswa.innerHTML=tb})}
+function showFormSiswa(id=''){sID.value=id; titleSiswa.innerText=id?'Edit':'Tambah'; overlay.classList.remove('hidden'); formSiswa.classList.remove('hidden')}
+function saveSiswa(){api('saveSiswa',{id:sID.value,nama:sNama.value,kelas:sKelas.value,rayon:sRayon.value}).then(()=>{closeForm('formSiswa');loadSiswa();loadDashboard()})}
+function hapusSiswa(id){if(confirm('Hapus?'))api('hapusSiswa',{id}).then(()=>{loadSiswa();loadDashboard()})}
+function loadWarga(){api('getWarga').then(res=>{data.warga=res;let tb='';res.forEach(x=>{tb+=`<tr><td>${x.Nama}</td><td>${x.Rayon}</td><td class=${x.Status=='Lunas'?'status-lunas':'status-belum'}>${x.Status}</td><td><button class=btn-edit onclick=editWarga('${x.ID}')>Edit</button><button class=btn-hapus onclick=hapusWarga('${x.ID}')>Hapus</button></td></tr>`});tblWarga.innerHTML=tb})}
+function showFormWarga(id=''){wID.value=id; titleWarga.innerText=id?'Edit':'Tambah'; overlay.classList.remove('hidden'); formWarga.classList.remove('hidden')}
+function saveWarga(){api('saveWarga',{id:wID.value,nama:wNama.value,rayon:wRayon.value}).then(()=>{closeForm('formWarga');loadWarga();loadDashboard()})}
+function hapusWarga(id){if(confirm('Hapus?'))api('hapusWarga',{id}).then(()=>{loadWarga();loadDashboard()})}
+function loadPrawarga(){api('getPrawarga').then(res=>{data.prawarga=res;let tb='';res.forEach(x=>{tb+=`<tr><td><img src="${x.Foto}" class=foto-prawarga onerror="this.src='https://via.placeholder.com/60x80'"></td><td>${x.Nama}</td><td>${x.Asal}</td><td>${x.Status}</td><td><button class=btn-edit onclick=editPrawarga('${x.ID}')>Edit</button><button class=btn-hapus onclick=hapusPrawarga('${x.ID}')>Hapus</button></td></tr>`});tblPrawarga.innerHTML=tb})}
+function showFormPrawarga(id=''){pID.value=id; titlePrawarga.innerText=id?'Edit':'Tambah'; overlay.classList.remove('hidden'); formPrawarga.classList.remove('hidden')}
+function savePrawarga(){let fd=new FormData();fd.append('action','savePrawarga');fd.append('token',user.token);fd.append('id',pID.value);fd.append('nama',pNama.value);fd.append('asal',pAsal.value);fd.append('foto',pFoto.files[0]);showLoading(true);fetch(API,{method:'POST',body:fd}).then(r=>r.json()).then(()=>{showLoading(false);closeForm('formPrawarga');loadPrawarga()})}
+function hapusPrawarga(id){if(confirm('Hapus?'))api('hapusPrawarga',{id}).then(()=>loadPrawarga())}
+function closeForm(id){document.getElementById(id).classList.add('hidden');overlay.classList.add('hidden')}
+function exportKeuangan(){let html='<h1>Laporan Keuangan Rayon Wonorejo</h1><table border=1>'+document.querySelector('#keuangan table').outerHTML;exportArea.innerHTML=html;window.print()}
+</script>
+</body>
+</html>
