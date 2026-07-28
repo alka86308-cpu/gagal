@@ -30,11 +30,9 @@ async function loadDashboard(){
             "TOKEN"
 
         );
-        const result = await apiPost({
-    action: "dashboard",
+        const result = await apiPost("dashboard", {
     token: token
-
-        });
+});
 
         if(!result.status){
 
