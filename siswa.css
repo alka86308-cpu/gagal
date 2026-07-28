@@ -1,0 +1,172 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    display:flex;
+    background:#f4f6f9;
+}
+
+.sidebar{
+    width:260px;
+    background:#0b7a38;
+    min-height:100vh;
+    color:#fff;
+    position:fixed;
+    left:0;
+    top:0;
+    overflow:auto;
+}
+
+.sidebar-header{
+    text-align:center;
+    padding:25px 15px;
+}
+
+.logo{
+    width:90px;
+    height:90px;
+    object-fit:contain;
+    margin-bottom:10px;
+}
+
+.sidebar-header h2{
+    font-size:22px;
+    margin-bottom:5px;
+}
+
+.sidebar-header p{
+    font-size:14px;
+}
+
+.menu{
+    list-style:none;
+    margin-top:20px;
+}
+
+.menu li{
+    padding:16px 25px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.menu li:hover,
+.menu li.active{
+    background:rgba(255,255,255,.15);
+}
+
+.main{
+    flex:1;
+    margin-left:260px;
+    padding:20px;
+}
+
+header{
+    background:#fff;
+    border-radius:15px;
+    padding:18px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+.menu-btn{
+    font-size:24px;
+    border:none;
+    background:none;
+    cursor:pointer;
+}
+
+.toolbar{
+    margin-top:20px;
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.toolbar input{
+    flex:1;
+    min-width:220px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    outline:none;
+}
+
+.toolbar button{
+    background:#0b7a38;
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.table-box{
+    margin-top:20px;
+    background:#fff;
+    border-radius:15px;
+    overflow:auto;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#0b7a38;
+    color:#fff;
+}
+
+th,
+td{
+    padding:14px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+}
+
+tbody tr:hover{
+    background:#f8f8f8;
+}
+
+@media(max-width:768px){
+
+.sidebar{
+
+left:-260px;
+transition:.3s;
+
+}
+
+.sidebar.active{
+
+left:0;
+
+}
+
+.main{
+
+margin-left:0;
+
+}
+
+.toolbar{
+
+flex-direction:column;
+
+}
+
+.toolbar button{
+
+width:100%;
+
+}
+
+}
