@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SIM Administrasi PSHT</title>
+
+    <link rel="icon" href="logo.png">
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <img src="logo.png"
+             alt="Logo PSHT"
+             class="logo">
+
+        <h1>SIM Administrasi</h1>
+
+        <p class="subtitle">
+            PSHT Rayon Wonorejo
+        </p>
+
+        <div id="message"
+             class="message"></div>
+
+        <div class="input-group">
+            <label>Username</label>
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Masukkan Username">
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Masukkan Password">
+        </div>
+
+        <button
+            id="btnLogin"
+            onclick="login()">
+            LOGIN
+        </button>
+
+        <div id="loading"
+             class="loading"
+             style="display:none;">
+            Memproses Login...
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/login.js"></script>
+
+</body>
+</html>
