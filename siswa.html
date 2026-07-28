@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+
+Data Siswa
+
+</title>
+
+<link
+rel="icon"
+href="assets/logo.png">
+
+<link
+rel="stylesheet"
+href="css/siswa.css">
+
+</head>
+
+<body>
+
+<div
+class="sidebar"
+id="sidebar">
+
+<div
+class="sidebar-header">
+
+<img
+src="assets/logo.png"
+class="logo">
+
+<h2>
+
+SIM Administrasi
+
+</h2>
+
+<p>
+
+PSHT Wonorejo
+
+</p>
+
+</div>
+
+<ul
+class="menu">
+
+<li onclick="goPage('dashboard')">
+
+🏠 Dashboard
+
+</li>
+
+<li class="active">
+
+👨‍🎓 Data Siswa
+
+</li>
+
+<li onclick="goPage('warga')">
+
+👥 Data Warga
+
+</li>
+
+<li onclick="goPage('prawarga')">
+
+📋 Prawarga
+
+</li>
+
+<li onclick="goPage('keuangan')">
+
+💰 Keuangan
+
+</li>
+
+<li onclick="goPage('qr')">
+
+📱 QR Iuran
+
+</li>
+
+<li onclick="goPage('users')">
+
+👤 User
+
+</li>
+
+<li onclick="logout()">
+
+🚪 Logout
+
+</li>
+
+</ul>
+
+</div>
+
+<div
+class="main">
+
+<header>
+
+<button
+class="menu-btn"
+onclick="toggleSidebar()">
+
+☰
+
+</button>
+
+<h2>
+
+Data Siswa
+
+</h2>
+
+<div
+id="userName">
+
+...
+
+</div>
+
+</header>
+
+<div
+class="toolbar">
+
+<input
+type="text"
+id="search"
+placeholder="Cari Nama / NIK">
+
+<button
+onclick="openTambah()">
+
++ Tambah
+
+</button>
+
+</div>
+
+<div
+class="table-box">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>No</th>
+
+<th>NIK</th>
+
+<th>Nama</th>
+
+<th>Kelas</th>
+
+<th>Status</th>
+
+<th>Aksi</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="tableSiswa">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script
+src="js/api.js">
+
+</script>
+
+<script
+src="js/siswa.js">
+
+</script>
+
+</body>
+
+</html>
