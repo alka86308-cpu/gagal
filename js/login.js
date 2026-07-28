@@ -37,10 +37,6 @@ async function login() {
             password: password
         });
 
-        // DEBUG
-        alert(JSON.stringify(result));
-        return;
-
         if (result.status) {
 
             localStorage.setItem("TOKEN", result.token);
