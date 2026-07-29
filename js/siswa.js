@@ -88,9 +88,9 @@ function renderTable(data){
 
 <td>${item.nama}</td>
 
-<td>${item.kelas}</td>
+<td>${item.jk}</td>
 
-<td>${item.status}</td>
+<td>${item.tingkatan}</td>
 
 <td>
 
