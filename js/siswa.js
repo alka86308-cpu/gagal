@@ -33,9 +33,7 @@ async function loadSiswa(){
 
         const result=
 
-        await apiPost({
-
-            action:"getsiswa",
+        await apiPost({:"getsiswa",
 
             token:token
 
